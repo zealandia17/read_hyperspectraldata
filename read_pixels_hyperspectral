@@ -1,0 +1,56 @@
+#this code using Spectral Python library requires ENVI format data header; (.hdr), .dat, and .png 
+
+#import important libraries
+import spectral as sp
+import numpy as np
+import matplotlib.pyplot as plt
+
+
+
+##Read HSI (Hyperspectral Image) data
+# open HSI file 
+hdr = sp.envi.open ("your_HSI header_path")
+wvl = hdr.bands.centers
+rows, cols, bands = hdr.nrows, hdr.ncols, hdr.nbands
+meta = hdr.metadata
+meta
+print ("HSI image metadata=", hdr)   
+print ("HSI range wavelength", wvl)
+hdr.shape
+
+
+#load HSI data CAUTION! only run this line when your data is small!
+img = hdr.load()
+#dispay the hsi image
+view = sp.imshow(img, ())
+#you can check your pixel coordinates in GIMP (do not forget, the GIMP coordinate format is reversed row = col, col = row
+row_bounds = (71, 73)
+col_bounds = (279, 281)
+subregion = hdr.read_subregion(row_bounds, col_bounds, use_memmap=True )
+r, c, b = subregion.shape
+sub = subregion.reshape(r*c, b)
+
+print(type(sub))
+subregion
+# Check the type of the subregion
+print(type(subregion))
+print(np.amax(subregion))
+print(np.amin(subregion))
+
+##Plotting HSI reflenctance value
+pixel_values = sub
+print(type(pixel_values))
+#max(pixel_values)
+#min(pixel_values)
+wavelength = np.linspace(397.32, 1003.58, len(pixel_values))
+wavelength.shape
+len(pixel_values)
+# Plotting the spectral plot
+for i in range (r*c):
+    plt.plot(wvl, pixel_values[i, :])
+plt.xlabel('Wavelength (nm)')
+plt.ylabel('Pixel Value')
+plt.title('Spectral Scatter Plot')
+plt.show()
+
+
